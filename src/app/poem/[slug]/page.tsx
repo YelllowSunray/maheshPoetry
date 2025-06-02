@@ -27,12 +27,11 @@ async function getPoemTitle(slug: string) {
   return file ? file.replace('.png', '') : null;
 }
 
-type PageProps = {
+export default async function Page({
+  params,
+}: {
   params: { slug: string }
-  searchParams: Record<string, string | string[] | undefined>
-}
-
-export default async function Page({ params }: PageProps) {
+}) {
   const title = await getPoemTitle(params.slug);
   
   if (!title) {
