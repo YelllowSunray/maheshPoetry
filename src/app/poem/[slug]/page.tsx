@@ -3,6 +3,7 @@ import Link from 'next/link';
 import fs from 'fs';
 import path from 'path';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 
 export async function generateStaticParams() {
   const imagesDir = path.join(process.cwd(), 'public/images');
@@ -27,12 +28,15 @@ async function getPoemTitle(slug: string) {
   return file ? file.replace('.png', '') : null;
 }
 
-export default async function Page({
-  params,
-}: {
-  params: { slug: string }
-}) {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const title = await getPoemTitle(params.slug);
+  return {
+    title: title || 'Poem Not Found',
+  };
+}
+
+export default async function Page(props: { params: { slug: string } }) {
+  const title = await getPoemTitle(props.params.slug);
   
   if (!title) {
     notFound();
