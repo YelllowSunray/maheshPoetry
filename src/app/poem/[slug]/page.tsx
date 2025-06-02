@@ -27,12 +27,15 @@ async function getPoemTitle(slug: string) {
   return file ? file.replace('.png', '') : null;
 }
 
-type Props = {
-  params: { slug: string }
-  searchParams: { [key: string]: string | string[] | undefined }
+interface PageParams {
+  slug: string;
 }
 
-export default async function PoemPage({ params }: Props) {
+export default async function PoemPage({
+  params,
+}: {
+  params: PageParams;
+}) {
   const title = await getPoemTitle(params.slug);
   
   if (!title) {
