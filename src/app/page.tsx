@@ -2,6 +2,18 @@ import Link from 'next/link';
 import fs from 'fs';
 import path from 'path';
 
+export async function generateStaticParams() {
+  const imagesDir = path.join(process.cwd(), 'public/images');
+  const files = fs.readdirSync(imagesDir);
+  return files
+    .filter((file: string) => file.endsWith('.png'))
+    .map((file: string) => {
+      const title = file.replace('.png', '');
+      const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      return { slug };
+    });
+}
+
 function getPoemTitles() {
   const imagesDir = path.join(process.cwd(), 'public/images');
   const files = fs.readdirSync(imagesDir);
