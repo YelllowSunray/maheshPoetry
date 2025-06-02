@@ -43,13 +43,13 @@ export async function generateMetadata({
 }
 
 // Page component
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const resolvedParams = await params;
-  const title = await getPoemTitle(resolvedParams.slug);
+type Props = {
+  params: { slug: string }
+  searchParams: { [key: string]: string | string[] | undefined }
+}
+
+export default function Page({ params }: Props) {
+  const title = getPoemTitle(params.slug);
   
   if (!title) {
     notFound();
