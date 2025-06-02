@@ -3,8 +3,9 @@ import Link from 'next/link';
 import fs from 'fs';
 import path from 'path';
 import { notFound } from 'next/navigation';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 
+// Generate static routes from filenames in public/images
 export async function generateStaticParams() {
   const imagesDir = path.join(process.cwd(), 'public/images');
   const files = fs.readdirSync(imagesDir);
@@ -17,27 +18,42 @@ export async function generateStaticParams() {
     });
 }
 
-async function getPoemTitle(slug: string) {
+// Get the actual title from a slug
+async function getPoemTitle(slug: string): Promise<string | null> {
   const imagesDir = path.join(process.cwd(), 'public/images');
   const files = fs.readdirSync(imagesDir);
+
   const file = files.find(f => {
     const title = f.replace('.png', '');
     const fileSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     return fileSlug === slug;
   });
+
   return file ? file.replace('.png', '') : null;
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+// Set dynamic page metadata
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
   const title = await getPoemTitle(params.slug);
   return {
     title: title || 'Poem Not Found',
   };
 }
 
-export default async function Page(props: { params: { slug: string } }) {
-  const title = await getPoemTitle(props.params.slug);
-  
+// Page component
+interface PageProps {
+  params: {
+    slug: string;
+  };
+}
+
+export default async function Page({ params }: PageProps) {
+  const title = await getPoemTitle(params.slug);
+
   if (!title) {
     notFound();
   }
@@ -45,13 +61,13 @@ export default async function Page(props: { params: { slug: string } }) {
   return (
     <main className="min-h-screen p-8 bg-white">
       <div className="max-w-4xl mx-auto">
-        <Link 
+        <Link
           href="/"
           className="inline-block mb-4 text-gray-600 hover:text-gray-800 transition-colors duration-200"
         >
           ← Back to Poems
         </Link>
-        
+
         <div className="relative w-full aspect-[3/4] max-w-2xl mx-auto">
           <Image
             src={`/images/${title}.png`}
@@ -64,4 +80,4 @@ export default async function Page(props: { params: { slug: string } }) {
       </div>
     </main>
   );
-} 
+}
