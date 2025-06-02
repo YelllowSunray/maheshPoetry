@@ -22,13 +22,11 @@ export async function generateStaticParams() {
 async function getPoemTitle(slug: string): Promise<string | null> {
   const imagesDir = path.join(process.cwd(), 'public/images');
   const files = fs.readdirSync(imagesDir);
-
   const file = files.find(f => {
     const title = f.replace('.png', '');
     const fileSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     return fileSlug === slug;
   });
-
   return file ? file.replace('.png', '') : null;
 }
 
@@ -45,15 +43,14 @@ export async function generateMetadata({
 }
 
 // Page component
-interface PageProps {
-  params: {
-    slug: string;
-  };
-}
-
-export default async function Page({ params }: PageProps) {
-  const title = await getPoemTitle(params.slug);
-
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const resolvedParams = await params;
+  const title = await getPoemTitle(resolvedParams.slug);
+  
   if (!title) {
     notFound();
   }
@@ -61,13 +58,13 @@ export default async function Page({ params }: PageProps) {
   return (
     <main className="min-h-screen p-8 bg-white">
       <div className="max-w-4xl mx-auto">
-        <Link
+        <Link 
           href="/"
           className="inline-block mb-4 text-gray-600 hover:text-gray-800 transition-colors duration-200"
         >
           ← Back to Poems
         </Link>
-
+        
         <div className="relative w-full aspect-[3/4] max-w-2xl mx-auto">
           <Image
             src={`/images/${title}.png`}
