@@ -4,7 +4,19 @@ import fs from 'fs';
 import path from 'path';
 import { notFound } from 'next/navigation';
 
-function getPoemTitle(slug: string) {
+export async function generateStaticParams() {
+  const imagesDir = path.join(process.cwd(), 'public/images');
+  const files = fs.readdirSync(imagesDir);
+  return files
+    .filter(file => file.endsWith('.png'))
+    .map(file => {
+      const title = file.replace('.png', '');
+      const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      return { slug };
+    });
+}
+
+async function getPoemTitle(slug: string) {
   const imagesDir = path.join(process.cwd(), 'public/images');
   const files = fs.readdirSync(imagesDir);
   const file = files.find(f => {
@@ -15,8 +27,13 @@ function getPoemTitle(slug: string) {
   return file ? file.replace('.png', '') : null;
 }
 
-export default function PoemPage({ params }: { params: { slug: string } }) {
-  const title = getPoemTitle(params.slug);
+type Props = {
+  params: { slug: string }
+  searchParams: { [key: string]: string | string[] | undefined }
+}
+
+export default async function PoemPage({ params }: Props) {
+  const title = await getPoemTitle(params.slug);
   
   if (!title) {
     notFound();
